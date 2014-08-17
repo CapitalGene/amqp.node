@@ -1,4 +1,4 @@
-RABBITMQ_SRC_VERSION=rabbitmq_v3_2_1
+RABBITMQ_SRC_VERSION=rabbitmq_v3_3_5
 JSON=amqp-rabbitmq-0.9.1.json
 RABBITMQ_CODEGEN=https://raw.githubusercontent.com/rabbitmq/rabbitmq-codegen
 AMQP_JSON=$(RABBITMQ_CODEGEN)/$(RABBITMQ_SRC_VERSION)/$(JSON)
