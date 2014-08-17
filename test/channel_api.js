@@ -48,7 +48,7 @@ function ignoreErrors(c) {
 
 function logErrors(c) {
   //c.on('error', console.warn);
-  return Promise.resolve(c);
+  return c;
 }
 
 // Run a test with `name`, given a function that takes an open

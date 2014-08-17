@@ -97,7 +97,7 @@ function runServer(socket, run) {
             else resolve(f);
           });
         }
-      })
+      });
     };
   }
   run(send, await);
