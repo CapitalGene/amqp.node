@@ -26,7 +26,8 @@
   },
   "scripts": {
     "test": "make test",
-    "prepublish": "make"
+    "prepublish": "make",
+    "install": "make lib/defs.js"
   },
   "keywords": [
     "AMQP",
