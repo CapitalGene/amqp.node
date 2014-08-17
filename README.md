@@ -1,3 +1,6 @@
+# A Fork of squaremo/amqp.node using latest Bluebird promise
+    npm install "git+https://github.com/uschen/amqp.node#master"
+
 # AMQP 0-9-1 library and client for Node.JS
 
 [![Build Status](https://travis-ci.org/squaremo/amqp.node.png)](https://travis-ci.org/squaremo/amqp.node)
