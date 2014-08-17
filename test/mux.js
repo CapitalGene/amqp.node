@@ -9,7 +9,9 @@ var latch = require('./util').latch;
 var schedule = require('./util').schedule;
 
 function stream() {
-  return new PassThrough({objectMode: true});
+  return new PassThrough({
+    objectMode: true
+  });
 }
 
 function readAllObjects(s, cb) {
@@ -23,27 +25,31 @@ function readAllObjects(s, cb) {
     }
   }
 
-  s.on('end', function() { cb(objs); });
+  s.on('end', function () {
+    cb(objs);
+  });
   s.on('readable', read);
 
   read();
 }
 
-test("single input", function(done) {
+test("single input", function (done) {
   var input = stream();
   var output = stream();
-  input.on('end', function() { output.end() });
+  input.on('end', function () {
+    output.end()
+  });
 
   var mux = new Mux(output);
   mux.pipeFrom(input);
 
-  var data = [1,2,3,4,5,6,7,8,9]; 
+  var data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
   // not 0, it's treated specially by PassThrough for some reason. By
   // 'specially' I mean it breaks the stream. See e.g.,
   // https://github.com/isaacs/readable-stream/pull/55
   data.forEach(input.write.bind(input));
 
-  readAllObjects(output, function(vals) {
+  readAllObjects(output, function (vals) {
     assert.deepEqual(data, vals);
     done();
   });
@@ -51,7 +57,7 @@ test("single input", function(done) {
   input.end();
 });
 
-test("two sequential inputs", function(done) {
+test("two sequential inputs", function (done) {
   var input1 = stream();
   var input2 = stream();
   var output = stream();
@@ -59,23 +65,29 @@ test("two sequential inputs", function(done) {
   mux.pipeFrom(input1);
   mux.pipeFrom(input2);
 
-  var data = [1,2,3,4,5,6,7,8,9];
-  data.forEach(function(v) { input1.write(v); });
+  var data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  data.forEach(function (v) {
+    input1.write(v);
+  });
 
-  input1.on('end', function() {
-    data.forEach(function (v) { input2.write(v); });
+  input1.on('end', function () {
+    data.forEach(function (v) {
+      input2.write(v);
+    });
     input2.end();
   });
-  input2.on('end', function() { output.end(); });
+  input2.on('end', function () {
+    output.end();
+  });
 
   input1.end();
-  readAllObjects(output, function(vs) {
+  readAllObjects(output, function (vs) {
     assert.equal(2 * data.length, vs.length);
     done();
   });
 });
 
-test("two interleaved inputs", function(done) {
+test("two interleaved inputs", function (done) {
   var input1 = stream();
   var input2 = stream();
   var output = stream();
@@ -83,61 +95,69 @@ test("two interleaved inputs", function(done) {
   mux.pipeFrom(input1);
   mux.pipeFrom(input2);
 
-  var endLatch = latch(2, function() { output.end(); });
+  var endLatch = latch(2, function () {
+    output.end();
+  });
   input1.on('end', endLatch);
   input2.on('end', endLatch);
 
-  var data = [1,2,3,4,5,6,7,8,9];
-  data.forEach(function(v) { input1.write(v); });
+  var data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  data.forEach(function (v) {
+    input1.write(v);
+  });
   input1.end();
 
-  data.forEach(function(v) { input2.write(v); });
+  data.forEach(function (v) {
+    input2.write(v);
+  });
   input2.end();
 
-  readAllObjects(output, function(vs) {
+  readAllObjects(output, function (vs) {
     assert.equal(2 * data.length, vs.length);
     done();
   });
 });
 
-test("unpipe", function(done) {
+test("unpipe", function (done) {
   var input = stream();
   var output = stream();
   var mux = new Mux(output);
 
-  var pipedData = [1,2,3,4,5];
-  var unpipedData = [6,7,8,9];
+  var pipedData = [1, 2, 3, 4, 5];
+  var unpipedData = [6, 7, 8, 9];
 
   mux.pipeFrom(input);
 
-  schedule(function() {
+  schedule(function () {
     pipedData.forEach(input.write.bind(input));
     mux.unpipeFrom(input);
 
-    schedule(function() {
+    schedule(function () {
       unpipedData.forEach(input.write.bind(input));
       input.end();
-      schedule(function() {
+      schedule(function () {
         // exhaust so that 'end' fires
-        var v; while (v = input.read());
+        var v;
+        while (v = input.read());
       });
     });
   });
 
-  input.on('end', function() {
+  input.on('end', function () {
     output.end();
   });
 
-  readAllObjects(output, function(vals) {
+  readAllObjects(output, function (vals) {
     try {
       assert.deepEqual(pipedData, vals);
       done();
+    } catch (e) {
+      done(e);
     }
-    catch (e) { done(e); }
   });
 });
 
-test("roundrobin", function(done) {
+test("roundrobin", function (done) {
   var input1 = stream();
   var input2 = stream();
   var output = stream();
@@ -146,20 +166,26 @@ test("roundrobin", function(done) {
   mux.pipeFrom(input1);
   mux.pipeFrom(input2);
 
-  var endLatch = latch(2, function() { output.end(); });
+  var endLatch = latch(2, function () {
+    output.end();
+  });
   input1.on('end', endLatch);
   input2.on('end', endLatch);
 
-  var ones = [1,1,1,1,1];
-  ones.forEach(function(v) { input1.write(v); });
+  var ones = [1, 1, 1, 1, 1];
+  ones.forEach(function (v) {
+    input1.write(v);
+  });
   input1.end();
 
-  var twos = [2,2,2,2,2];
-  twos.forEach(function(v) { input2.write(v); });
+  var twos = [2, 2, 2, 2, 2];
+  twos.forEach(function (v) {
+    input2.write(v);
+  });
   input2.end();
 
-  readAllObjects(output, function(vs) {
-    assert.deepEqual([1,2,1,2,1,2,1,2,1,2], vs);
+  readAllObjects(output, function (vs) {
+    assert.deepEqual([1, 2, 1, 2, 1, 2, 1, 2, 1, 2], vs);
     done();
   });
 

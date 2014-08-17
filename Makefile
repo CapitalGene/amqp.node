@@ -3,6 +3,7 @@ JSON=amqp-rabbitmq-0.9.1.json
 RABBITMQ_CODEGEN=https://raw.githubusercontent.com/rabbitmq/rabbitmq-codegen
 AMQP_JSON=$(RABBITMQ_CODEGEN)/$(RABBITMQ_SRC_VERSION)/$(JSON)
 
+REPORTER=spec
 MOCHA=./node_modules/.bin/mocha
 _MOCHA=./node_modules/.bin/_mocha
 UGLIFY=./node_modules/.bin/uglifyjs
@@ -23,7 +24,10 @@ lib/defs.js: $(UGLIFY) bin/generate-defs.js bin/amqp-rabbitmq-0.9.1.json
 		-b 'indent-level=2' 2>&1 | (grep -v 'WARN' || true)
 
 test: lib/defs.js
-	$(MOCHA) --check-leaks -u tdd test/
+	@NODE_ENV=testing \
+	BLUEBIRD_DEBUG=1 \
+	$(MOCHA) --check-leaks -u tdd -t 10000 test/ \
+		--reporter $(REPORTER)
 
 test-all-nodejs: lib/defs.js
 	for v in '0.8' '0.9' '0.10' '0.11'; \
