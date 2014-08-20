@@ -27,7 +27,7 @@
     "afterEach",
     "inject",
     "sinon",
-    "fixtures",
+    "fixtures"
   ],
   /*
    * ENFORCING OPTIONS
