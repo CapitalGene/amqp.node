@@ -1,5 +1,4 @@
 // Property-based testing representations of various things in AMQP
-
 'use strict';
 
 var C = require('claire');
@@ -52,7 +51,7 @@ function floatChooser(maxExp) {
       n = Math.pow(mantissa, exponent);
     }
     return n;
-  }
+  };
 }
 
 // FIXME null, byte array, others?
@@ -205,9 +204,9 @@ var domainProps = [
   ]
 ];
 
-suite("Domains", function () {
+describe("Domains", function () {
   domainProps.forEach(function (p) {
-    test(p[0] + ' domain',
+    it(p[0] + ' domain',
       forAll(p[0]).satisfy(p[1]).asTest({
         times: 500
       }));
@@ -289,7 +288,7 @@ for (var k in defs) {
     propertieses.push(properties(defs[k]));
     propertieses[defs[k].name] = properties(defs[k]);
   }
-};
+}
 
 module.exports = {
   Octet: Octet,

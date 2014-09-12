@@ -33,11 +33,11 @@ function readAllObjects(s, cb) {
   read();
 }
 
-test("single input", function (done) {
+it('single input', function (done) {
   var input = stream();
   var output = stream();
   input.on('end', function () {
-    output.end()
+    output.end();
   });
 
   var mux = new Mux(output);
@@ -57,7 +57,7 @@ test("single input", function (done) {
   input.end();
 });
 
-test("two sequential inputs", function (done) {
+it('two sequential inputs', function (done) {
   var input1 = stream();
   var input2 = stream();
   var output = stream();
@@ -87,7 +87,7 @@ test("two sequential inputs", function (done) {
   });
 });
 
-test("two interleaved inputs", function (done) {
+it('two interleaved inputs', function (done) {
   var input1 = stream();
   var input2 = stream();
   var output = stream();
@@ -118,7 +118,7 @@ test("two interleaved inputs", function (done) {
   });
 });
 
-test("unpipe", function (done) {
+it('unpipe', function (done) {
   var input = stream();
   var output = stream();
   var mux = new Mux(output);
@@ -157,7 +157,7 @@ test("unpipe", function (done) {
   });
 });
 
-test("roundrobin", function (done) {
+it('roundrobin', function (done) {
   var input1 = stream();
   var input2 = stream();
   var output = stream();

@@ -27,7 +27,8 @@
     "afterEach",
     "inject",
     "sinon",
-    "fixtures"
+    "fixtures",
+    "-Promise"
   ],
   /*
    * ENFORCING OPTIONS
@@ -69,7 +70,7 @@
   "maxlen": 80,
 
   // Enforce placing 'use strict' at the top function scope
-  //"strict": true
+  "strict": true,
   "curly": true,
   "forin": true,
   "freeze": true

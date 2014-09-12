@@ -29,9 +29,9 @@ var HB = new Buffer([defs.constants.FRAME_HEARTBEAT,
   defs.constants.FRAME_END
 ]);
 
-suite("Explicit parsing", function () {
+describe('Explicit parsing', function () {
 
-  test('Parse heartbeat', function () {
+  it('Parse heartbeat', function () {
     var input = inputs();
     var frames = new Frames(input);
     input.write(HB);
@@ -39,7 +39,7 @@ suite("Explicit parsing", function () {
     assert(!frames.recvFrame());
   });
 
-  test('Parse partitioned', function () {
+  it('Parse partitioned', function () {
     var input = inputs();
     var frames = new Frames(input);
     input.write(HB.slice(0, 3));
@@ -50,14 +50,17 @@ suite("Explicit parsing", function () {
   });
 
   function testBogusFrame(name, bytes) {
-    test(name, function (done) {
+    it(name, function (done) {
       var input = inputs();
       var frames = new Frames(input);
       frames.frameMax = 5; //for the max frame test
       input.write(new Buffer(bytes));
       frames.step(function (err, frame) {
-        if (err != null) done();
-        else done(new Error('Was a bogus frame!'));
+        if (err != null) {
+          done();
+        } else {
+          done(new Error('Was a bogus frame!'));
+        }
       });
     });
   }
@@ -100,7 +103,7 @@ var assertEqualModuloDefaults =
 var Trace = label('frame trace',
   repeat(choice.apply(choice, amqp.methods)));
 
-suite("Parsing", function () {
+describe('Parsing', function () {
 
   function testPartitioning(partition) {
     return forAll(Trace).satisfy(function (t) {
@@ -128,24 +131,26 @@ suite("Parsing", function () {
 
       partition(bufs).forEach(input.write.bind(input));
       frames.acceptLoop();
-      if (ex) throw ex;
+      if (ex) {
+        throw ex;
+      }
       return i === t.length;
     }).asTest({
       times: 20
-    })
-  };
+    });
+  }
 
-  test("Parse trace of methods",
+  it('Parse trace of methods',
     testPartitioning(function (bufs) {
       return bufs;
     }));
 
-  test("Parse concat'd methods",
+  it('Parse concat\'d methods',
     testPartitioning(function (bufs) {
       return [Buffer.concat(bufs)];
     }));
 
-  test("Parse partitioned methods",
+  it('Parse partitioned methods',
     testPartitioning(function (bufs) {
       var full = Buffer.concat(bufs);
       var onethird = Math.floor(full.length / 3);
@@ -174,12 +179,12 @@ var Content = transform(function (args) {
     method: args[0].fields,
     header: args[1].fields,
     body: new Buffer(args[2])
-  }
+  };
 }, sequence(amqp.methods['BasicDeliver'],
   amqp.properties['BasicProperties'], Body));
 
-suite("Content framing", function () {
-  test("Adhere to frame max",
+describe('Content framing', function () {
+  it('Adhere to frame max',
     forAll(Content, FrameMax).satisfy(function (content, max) {
       var input = inputs();
       var frames = new Frames(input);
@@ -193,7 +198,9 @@ suite("Content framing", function () {
         largest = 0;
       while (f = input.read()) {
         i++;
-        if (f.length > largest) largest = f.length;
+        if (f.length > largest) {
+          largest = f.length;
+        }
         if (f.length > max) {
           return false;
         }

@@ -9,21 +9,21 @@ var fail = util.fail,
 
 var URL = process.env.URL || 'amqp://localhost';
 
-suite("Connect API", function () {
+describe('Connect API', function () {
 
-  test("Connection refused", function (done) {
+  it('Connection refused', function (done) {
     connect('amqp://localhost:23450', {},
       kCallback(fail(done), succeed(done)));
   });
 
   // %% this ought to fail the promise, rather than throwing an error
-  test("bad URL", function () {
+  it('bad URL', function () {
     assert.throws(function () {
       connect('blurble');
     });
   });
 
-  test("wrongly typed open option", function (done) {
+  it('wrongly typed open option', function (done) {
     var url = require('url');
     var parts = url.parse(URL, true);
     var q = parts.query || {};

@@ -116,9 +116,12 @@ function succeed(done) {
 // used as a success continuation when failure is expected)
 function fail(done) {
   return function (err) {
-    if (err instanceof Error) done(err);
-    else done(new Error("Expected to fail, instead got " + err.toString()));
-  }
+    if (err instanceof Error) {
+      done(err);
+    } else {
+      done(new Error("Expected to fail, instead got " + err.toString()));
+    }
+  };
 }
 
 // Create a function that will call done once it's been called itself
@@ -156,8 +159,11 @@ function completes(thunk, done) {
 // an error continuation
 function kCallback(k, ek) {
   return function (err, val) {
-    if (err === null) k && k(val);
-    else ek && ek(err);
+    if (err === null) {
+      k && k(val);
+    } else {
+      ek && ek(err);
+    }
   };
 }
 
@@ -173,29 +179,29 @@ function versionGreaterThan(actual, spec) {
   for (var i = 0; i < desired.length; i++) {
     var a = version[i],
       b = desired[i];
-    if (a != b) return a > b;
+    if (a !== b){
+      return a > b;
+    }
   }
   return false;
 }
 
-suite('versionGreaterThan', function () {
+describe('versionGreaterThan', function () {
 
-  test('full spec', function () {
+  it('full spec', function () {
     assert(versionGreaterThan('0.8.26', '0.6.12'));
     assert(versionGreaterThan('0.8.26', '0.8.21'));
   });
 
-  test('partial spec', function () {
+  it('partial spec', function () {
     assert(versionGreaterThan('0.9.12', '0.8'));
   });
 
-  test('not greater', function () {
+  it('not greater', function () {
     assert(!versionGreaterThan('0.8.12', '0.8.26'));
     assert(!versionGreaterThan('0.6.2', '0.6.12'));
     assert(!versionGreaterThan('0.8.29', '0.8'));
   });
-
-  test
 
 });
 

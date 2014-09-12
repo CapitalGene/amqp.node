@@ -24,11 +24,16 @@ function baseChannelTest(client, server) {
     var pair = util.socketPair();
     var c = new Connection(pair.client);
 
-    if (LOG_ERRORS) c.on('error', console.warn);
+    if (LOG_ERRORS) {
+      c.on('error', console.warn);
+    }
 
     c.open(OPEN_OPTS, function (err, ok) {
-      if (err === null) client(c, bothDone);
-      else fail(bothDone);
+      if (err === null) {
+        client(c, bothDone);
+      } else {
+        fail(bothDone);
+      }
     });
 
     pair.server.read(8); // discard the protocol header
@@ -45,7 +50,9 @@ function channelTest(client, server) {
   return baseChannelTest(
     function (conn, done) {
       var ch = new Channel(conn);
-      if (LOG_ERRORS) ch.on('error', console.warn);
+      if (LOG_ERRORS) {
+        ch.on('error', console.warn);
+      }
       client(ch, done, conn);
     },
     function (send, await, done) {
@@ -86,15 +93,16 @@ function open(ch) {
         outOfBand: ''
       }, defs.ChannelOpenOk,
       function (err, _) {
-        if (err === null) resolve();
-        else reject(err);
+        if (err) {
+          return reject(err);
+        }
+        resolve();
       });
-  })
+  });
 }
 
-suite("channel open and close", function () {
-
-  test("open", channelTest(
+describe('channel open and close', function () {
+  it('open', channelTest(
     function (ch, done) {
       open(ch).then(succeed(done), fail(done));
     },
@@ -102,7 +110,7 @@ suite("channel open and close", function () {
       done();
     }));
 
-  test("bad server", baseChannelTest(
+  it('bad server', baseChannelTest(
     function (c, done) {
       var ch = new Channel(c);
       open(ch).then(fail(done), succeed(done));
@@ -113,15 +121,14 @@ suite("channel open and close", function () {
           send(defs.ChannelCloseOk, {}, open.channel);
         }).then(succeed(done), fail(done));
     }));
-
-  test("open, close", channelTest(
+  it('open, close', channelTest(
     function (ch, done) {
       open(ch)
         .then(function () {
           return new Promise(function (resolve, reject) {
-            ch.closeBecause("Bye", defs.constants.REPLY_SUCCESS,
+            ch.closeBecause('Bye', defs.constants.REPLY_SUCCESS,
               resolve);
-          })
+          });
         })
         .then(succeed(done), fail(done));
     },
@@ -132,7 +139,7 @@ suite("channel open and close", function () {
         }).then(succeed(done), fail(done));;
     }));
 
-  test("server close", channelTest(
+  it('server close', channelTest(
     function (ch, done) {
       ch.on('error', succeed(done));
       open(ch);
@@ -148,13 +155,13 @@ suite("channel open and close", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("overlapping channel/server close", channelTest(
+  it('overlapping channel/server close', channelTest(
     function (ch, done, conn) {
       var both = latch(2, done);
       conn.on('error', succeed(both));
       ch.on('close', succeed(both));
       open(ch).then(function () {
-        ch.closeBecause("Bye", defs.constants.REPLY_SUCCESS);
+        ch.closeBecause('Bye', defs.constants.REPLY_SUCCESS);
       }, fail(both));
     },
     function (send, await, done, ch) {
@@ -171,13 +178,13 @@ suite("channel open and close", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("double close", channelTest(
+  it('double close', channelTest(
     function (ch, done) {
       open(ch).then(function () {
-        ch.closeBecause("First close", defs.constants.REPLY_SUCCESS);
+        ch.closeBecause('First close', defs.constants.REPLY_SUCCESS);
         // NB no synchronisation, we do this straight away
         assert.throws(function () {
-          ch.closeBecause("Second close", defs.constants.REPLY_SUCCESS);
+          ch.closeBecause('Second close', defs.constants.REPLY_SUCCESS);
         });
       }).then(succeed(done), fail(done));
     },
@@ -191,16 +198,19 @@ suite("channel open and close", function () {
 
 }); //suite
 
-suite("channel machinery", function () {
+describe('channel machinery', function () {
 
-  test("RPC", channelTest(
+  it('RPC', channelTest(
     function (ch, done) {
       var rpcLatch = latch(3, done);
       open(ch).then(function () {
 
         function wheeboom(err, f) {
-          if (err !== null) rpcLatch(err);
-          else rpcLatch();
+          if (err !== null) {
+            rpcLatch(err);
+          } else {
+            rpcLatch();
+          }
         }
 
         var fields = {
@@ -228,7 +238,7 @@ suite("channel machinery", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("Bad RPC", channelTest(
+  it('Bad RPC', channelTest(
     function (ch, done) {
       // We want to see the RPC rejected and the channel closed (with an
       // error)
@@ -241,8 +251,11 @@ suite("channel machinery", function () {
               requeue: true
             }, defs.BasicRecoverOk,
             function (err) {
-              if (err !== null) errLatch();
-              else errLatch(new Error('Expected RPC failure'));
+              if (err !== null) {
+                errLatch();
+              } else {
+                errLatch(new Error('Expected RPC failure'));
+              }
             });
         }, fail(errLatch));
     },
@@ -259,7 +272,7 @@ suite("channel machinery", function () {
         }).then(succeed(done), fail(done));
     }));
 
-  test("RPC on closed channel", channelTest(
+  it('RPC on closed channel', channelTest(
     function (ch, done) {
       open(ch);
       var expectedFailure = function () {
@@ -272,9 +285,9 @@ suite("channel machinery", function () {
               // not failed, reject
               reject();
             }
-          })
-        }
-      }
+          });
+        };
+      };
       var close = expectedFailure(),
         fail1 = expectedFailure(),
         fail2 = expectedFailure();
@@ -289,7 +302,7 @@ suite("channel machinery", function () {
         }, defs.BasicRecoverOk,
         fail2);
       close().then(function () {
-        return Promise.all([fail1, fail2])
+        return Promise.all([fail1, fail2]);
       }).then(succeed(done), fail(done));
 
     },
@@ -307,7 +320,7 @@ suite("channel machinery", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("publish all < single chunk threshold", channelTest(
+  it('publish all < single chunk threshold', channelTest(
     function (ch, done) {
       open(ch)
         .then(function () {
@@ -330,7 +343,7 @@ suite("channel machinery", function () {
       }).then(succeed(done), fail(done));
     }));
 
-  test("publish content > single chunk threshold", channelTest(
+  it('publish content > single chunk threshold', channelTest(
     function (ch, done) {
       open(ch);
       completes(function () {
@@ -352,7 +365,7 @@ suite("channel machinery", function () {
       }).then(succeed(done), fail(done));
     }));
 
-  test("publish method & headers > threshold", channelTest(
+  it('publish method & headers > threshold', channelTest(
     function (ch, done) {
       open(ch);
       completes(function () {
@@ -378,7 +391,7 @@ suite("channel machinery", function () {
       }).then(succeed(done), fail(done));
     }));
 
-  test("publish zero-length message", channelTest(
+  it('publish zero-length message', channelTest(
     function (ch, done) {
       open(ch);
       completes(function () {
@@ -406,7 +419,7 @@ suite("channel machinery", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("delivery", channelTest(
+  it('delivery', channelTest(
     function (ch, done) {
       open(ch);
       ch.on('delivery', function (m) {
@@ -421,7 +434,7 @@ suite("channel machinery", function () {
       }, done);
     }));
 
-  test("zero byte msg", channelTest(
+  it('zero byte msg', channelTest(
     function (ch, done) {
       open(ch);
       ch.on('delivery', function (m) {
@@ -436,7 +449,7 @@ suite("channel machinery", function () {
       }, done);
     }));
 
-  test("bad delivery", channelTest(
+  it('bad delivery', channelTest(
     function (ch, done) {
       var errorAndClose = latch(2, done);
       ch.on('error', succeed(errorAndClose));
@@ -453,7 +466,7 @@ suite("channel machinery", function () {
         }).then(succeed(done), fail(done));
     }));
 
-  test("bad content send", channelTest(
+  it('bad content send', channelTest(
     function (ch, done) {
       completes(function () {
         open(ch);
@@ -469,7 +482,7 @@ suite("channel machinery", function () {
       done();
     }));
 
-  test("bad properties send", channelTest(
+  it('bad properties send', channelTest(
     function (ch, done) {
       completes(function () {
         open(ch);
@@ -488,11 +501,11 @@ suite("channel machinery", function () {
       done();
     }));
 
-  test("bad consumer", channelTest(
+  it('bad consumer', channelTest(
     function (ch, done) {
       var errorAndClose = latch(2, done);
       ch.on('delivery', function () {
-        throw new Error("I am a bad consumer");
+        throw new Error('I am a bad consumer');
       });
       ch.on('error', succeed(errorAndClose));
       ch.on('close', succeed(errorAndClose));
@@ -506,7 +519,7 @@ suite("channel machinery", function () {
         }).then(succeed(done), fail(done));
     }));
 
-  test("bad send in consumer", channelTest(
+  it('bad send in consumer', channelTest(
     function (ch, done) {
       var errorAndClose = latch(2, done);
       ch.on('close', succeed(errorAndClose));
@@ -532,7 +545,7 @@ suite("channel machinery", function () {
         }).then(succeed(done), fail(done));
     }));
 
-  test("return", channelTest(
+  it('return', channelTest(
     function (ch, done) {
       ch.on('return', function (m) {
         completes(function () {
@@ -547,7 +560,7 @@ suite("channel machinery", function () {
       }, done);
     }));
 
-  test("cancel", channelTest(
+  it('cancel', channelTest(
     function (ch, done) {
       ch.on('cancel', function (f) {
         completes(function () {
@@ -566,7 +579,7 @@ suite("channel machinery", function () {
     }));
 
   function confirmTest(variety, Method) {
-    return test('confirm ' + variety, channelTest(
+    return it('confirm ' + variety, channelTest(
       function (ch, done) {
         ch.on(variety, function (f) {
           completes(function () {
@@ -585,10 +598,10 @@ suite("channel machinery", function () {
       }));
   }
 
-  confirmTest("ack", defs.BasicAck);
-  confirmTest("nack", defs.BasicNack);
+  confirmTest('ack', defs.BasicAck);
+  confirmTest('nack', defs.BasicNack);
 
-  test("out-of-order acks", channelTest(
+  it('out-of-order acks', channelTest(
     function (ch, done) {
       var allConfirms = latch(3, function () {
         completes(function () {
@@ -618,7 +631,7 @@ suite("channel machinery", function () {
       }, done);
     }));
 
-  test("not all out-of-order acks", channelTest(
+  it('not all out-of-order acks', channelTest(
     function (ch, done) {
       var allConfirms = latch(2, function () {
         completes(function () {
@@ -645,5 +658,4 @@ suite("channel machinery", function () {
         }, ch);
       }, done);
     }));
-
 });

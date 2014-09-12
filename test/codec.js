@@ -94,7 +94,7 @@ var testCases = [
 
   // string
   ['string', {
-      string: "boop"
+      string: 'boop'
     },
     [6, 115, 116, 114, 105, 110, 103, 83, 0, 0, 0, 4, 98, 111, 111, 112]
   ],
@@ -125,13 +125,13 @@ var testCases = [
 
   // array, object
   ['array', {
-      array: [6, true, "foo"]
+      array: [6, true, 'foo']
     },
     [5, 97, 114, 114, 97, 121, 65, 0, 0, 0, 12, 98, 6, 116, 1, 83, 0, 0, 0, 3, 102, 111, 111]
   ],
   ['object', {
       object: {
-        foo: "bar",
+        foo: 'bar',
         baz: 12
       }
     },
@@ -174,13 +174,13 @@ function bufferToArray(b) {
   return Array.prototype.slice.call(b);
 }
 
-suite("Explicit encodings", function () {
+describe('Explicit encodings', function () {
 
   testCases.forEach(function (tc) {
     var name = tc[0],
       val = tc[1],
       expect = tc[2];
-    test(name, function () {
+    it(name, function () {
       var buffer = new Buffer(1000);
       var size = codec.encodeTable(buffer, val, 0);
       var result = buffer.slice(4, size);
@@ -213,7 +213,7 @@ function roundtrips(T) {
   });
 }
 
-suite("Roundtrip values", function () {
+describe('Roundtrip values', function () {
   [
     amqp.Octet,
     amqp.ShortStr,
@@ -232,7 +232,7 @@ suite("Roundtrip values", function () {
     amqp.FieldArray,
     amqp.FieldTable
   ].forEach(function (T) {
-    test(T.toString() + ' roundtrip', roundtrips(T).asTest());
+    it(T.toString() + ' roundtrip', roundtrips(T).asTest());
   });
 });
 
@@ -299,16 +299,16 @@ function roundtripProperties(Properties) {
   });
 }
 
-suite("Roundtrip methods", function () {
+describe('Roundtrip methods', function () {
   amqp.methods.forEach(function (Method) {
-    test(Method.toString() + ' roundtrip',
+    it(Method.toString() + ' roundtrip',
       roundtripMethod(Method).asTest());
   });
 });
 
-suite("Roundtrip properties", function () {
+describe('Roundtrip properties', function () {
   amqp.properties.forEach(function (Properties) {
-    test(Properties.toString() + ' roundtrip',
+    it(Properties.toString() + ' roundtrip',
       roundtripProperties(Properties).asTest());
   });
 });

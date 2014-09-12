@@ -65,12 +65,14 @@ function connectionTest(client, server) {
     var bothDone = latch(2, done);
     var pair = util.socketPair();
     var c = new Connection(pair.client);
-    if (LOG_ERRORS) c.on('error', console.warn);
+    if (LOG_ERRORS) {
+      c.on('error', console.warn);
+    }
     client(c, bothDone);
 
     // NB only not a race here because the writes are synchronous
     var protocolHeader = pair.server.read(8);
-    assert.deepEqual(new Buffer("AMQP" + String.fromCharCode(0, 0, 9, 1)),
+    assert.deepEqual(new Buffer('AMQP' + String.fromCharCode(0, 0, 9, 1)),
       protocolHeader);
 
     var s = util.runServer(pair.server, function (send, await) {
@@ -79,9 +81,9 @@ function connectionTest(client, server) {
   };
 }
 
-suite("Connection errors", function () {
+describe('Connection errors', function () {
 
-  test("socket close during open", function (done) {
+  it('socket close during open', function (done) {
     // RabbitMQ itself will take at least 3 seconds to close the socket
     // in the event of a handshake problem. Instead of using a live
     // connection, I'm just going to pretend.
@@ -93,7 +95,7 @@ suite("Connection errors", function () {
     conn.open({}, kCallback(fail(done), succeed(done)));
   });
 
-  test("bad frame during open", function (done) {
+  it('bad frame during open', function (done) {
     var ss = util.socketPair();
     var conn = new(require('../lib/connection').Connection)(ss.client);
     ss.server.on('readable', function () {
@@ -104,9 +106,9 @@ suite("Connection errors", function () {
 
 });
 
-suite("Connection open", function () {
+describe('Connection open', function () {
 
-  test("happy", connectionTest(
+  it('happy', connectionTest(
     function (c, done) {
       c.open(OPEN_OPTS, kCallback(succeed(done), fail(done)));
     },
@@ -114,7 +116,7 @@ suite("Connection open", function () {
       happy_open(send, await).then(succeed(done), fail(done));
     }));
 
-  test("wrong first frame", connectionTest(
+  it('wrong first frame', connectionTest(
     function (c, done) {
       c.open(OPEN_OPTS, kCallback(fail(done), succeed(done)));
     },
@@ -129,7 +131,7 @@ suite("Connection open", function () {
       }, done);
     }));
 
-  test("unexpected socket close", connectionTest(
+  it('unexpected socket close', connectionTest(
     function (c, done) {
       c.open(OPEN_OPTS, kCallback(fail(done), succeed(done)));
     },
@@ -150,9 +152,9 @@ suite("Connection open", function () {
 
 });
 
-suite("Connection running", function () {
+describe('Connection running', function () {
 
-  test("wrong frame on channel 0", connectionTest(
+  it('wrong frame on channel 0', connectionTest(
     function (c, done) {
       c.on('error', succeed(done));
       c.open(OPEN_OPTS);
@@ -173,7 +175,7 @@ suite("Connection running", function () {
         }).then(succeed(done), fail(done));
     }));
 
-  test("unopened channel", connectionTest(
+  it('unopened channel', connectionTest(
     function (c, done) {
       c.on('error', succeed(done));
       c.open(OPEN_OPTS);
@@ -194,7 +196,7 @@ suite("Connection running", function () {
         }).then(succeed(done), fail(done));
     }));
 
-  test("unexpected socket close", connectionTest(
+  it('unexpected socket close', connectionTest(
     function (c, done) {
       var errorAndClosed = latch(2, done);
       c.on('error', succeed(errorAndClosed));
@@ -211,7 +213,7 @@ suite("Connection running", function () {
         }).then(succeed(done));
     }));
 
-  test("connection.blocked", connectionTest(
+  it('connection.blocked', connectionTest(
     function (c, done) {
       c.on('blocked', succeed(done));
       c.open(OPEN_OPTS);
@@ -226,7 +228,7 @@ suite("Connection running", function () {
         .then(succeed(done));
     }));
 
-  test("connection.unblocked", connectionTest(
+  it('connection.unblocked', connectionTest(
     function (c, done) {
       c.on('unblocked', succeed(done));
       c.open(OPEN_OPTS);
@@ -242,9 +244,9 @@ suite("Connection running", function () {
 
 });
 
-suite("Connection close", function () {
+describe('Connection close', function () {
 
-  test("happy", connectionTest(
+  it('happy', connectionTest(
     function (c, done0) {
       var done = latch(2, done0);
       c.on('close', done);
@@ -261,7 +263,7 @@ suite("Connection close", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("interleaved close frames", connectionTest(
+  it('interleaved close frames', connectionTest(
     function (c, done0) {
       var done = latch(2, done0);
       c.on('close', done);
@@ -274,7 +276,7 @@ suite("Connection close", function () {
         .then(await(defs.ConnectionClose))
         .then(function (f) {
           send(defs.ConnectionClose, {
-            replyText: "Ha!",
+            replyText: 'Ha!',
             replyCode: defs.constants.REPLY_SUCCESS,
             methodId: 0,
             classId: 0
@@ -287,7 +289,7 @@ suite("Connection close", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("server-initiated close", connectionTest(
+  it('server-initiated close', connectionTest(
     function (c, done0) {
       var done = latch(2, done0);
       c.on('close', succeed(done));
@@ -298,7 +300,7 @@ suite("Connection close", function () {
       happy_open(send, await)
         .then(function (f) {
           send(defs.ConnectionClose, {
-            replyText: "Begone",
+            replyText: 'Begone',
             replyCode: defs.constants.INTERNAL_ERROR,
             methodId: 0,
             classId: 0
@@ -308,7 +310,7 @@ suite("Connection close", function () {
         .then(succeed(done), fail(done));
     }));
 
-  test("double close", connectionTest(
+  it('double close', connectionTest(
     function (c, done) {
       c.open(OPEN_OPTS, kCallback(function () {
         c.close();
@@ -330,19 +332,19 @@ suite("Connection close", function () {
 
 });
 
-suite("heartbeats", function () {
+describe('heartbeats', function () {
 
   var heartbeat = require('../lib/heartbeat');
 
-  setup(function () {
+  before(function () {
     heartbeat.UNITS_TO_MS = 20;
   });
 
-  teardown(function () {
+  after(function () {
     heartbeat.UNITS_TO_MS = 1000;
   });
 
-  test("send heartbeat after open", connectionTest(
+  it('send heartbeat after open', connectionTest(
     function (c, done) {
       completes(function () {
         var opts = Object.create(OPEN_OPTS);
@@ -363,13 +365,16 @@ suite("heartbeats", function () {
         })
         .then(await())
         .then(function (hb) {
-          if (hb === HEARTBEAT) done();
-          else done("Next frame after silence not a heartbeat");
+          if (hb === HEARTBEAT) {
+            done();
+          } else {
+            done('Next frame after silence not a heartbeat');
+          }
           clearInterval(timer);
         });
     }));
 
-  test("detect lack of heartbeats", connectionTest(
+  it('detect lack of heartbeats', connectionTest(
     function (c, done) {
       var opts = Object.create(OPEN_OPTS);
       opts.heartbeat = 1;
