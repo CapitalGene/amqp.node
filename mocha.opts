@@ -1,0 +1,7 @@
+--require chai
+--globals chai
+--check-leaks
+--recursive
+--sort
+test/server/**/test.*.js
+test/server/**/**/test.*.js
