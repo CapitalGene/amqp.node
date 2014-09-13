@@ -11,19 +11,11 @@ ISTANBUL=./node_modules/.bin/istanbul
 
 .PHONY: test test-all-nodejs all clean coverage
 
-all: lib/defs.js
-
 clean:
 	rm lib/defs.js bin/amqp-rabbitmq-0.9.1.json
 	rm -rf ./coverage
 
-lib/defs.js: $(UGLIFY) bin/generate-defs.js bin/amqp-rabbitmq-0.9.1.json
-	(cd bin; node ./generate-defs.js > ../lib/defs.js)
-	$(UGLIFY) ./lib/defs.js -o ./lib/defs.js \
-		-c 'sequences=false' --comments \
-		-b 'indent-level=2' 2>&1 | (grep -v 'WARN' || true)
-
-test: lib/defs.js
+test:
 	@NODE_ENV=testing \
 	BLUEBIRD_DEBUG=1 \
 	$(MOCHA) --check-leaks -u tdd -t 10000 test/ \
