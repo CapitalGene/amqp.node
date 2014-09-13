@@ -546,7 +546,7 @@ describe('binding, consuming', function () {
       .then(function () {
         return ch.get(q, {
           noAck: false
-        })
+        });
       })
       .then(function (m) {
         assert.equal(msg1, m.content.toString());
@@ -577,7 +577,7 @@ describe('binding, consuming', function () {
       .then(function () {
         return ch.get(q, {
           noAck: false
-        })
+        });
       })
       .then(function (m) {
         assert.equal(msg1, m.content.toString());
@@ -616,7 +616,7 @@ describe('binding, consuming', function () {
             ch.ack(m);
             return first.promise.then(function (m) {
               ch.ack(m);
-            })
+            });
           }));
       });
   });
