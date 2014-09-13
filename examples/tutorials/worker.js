@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Process tasks from the work queue
-
+'use strict';
 var amqp = require('amqplib');
 
 amqp.connect('amqp://localhost').then(function(conn) {

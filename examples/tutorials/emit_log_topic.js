@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+'use strict';
 var amqp = require('amqplib');
 var when = require('when');
 
