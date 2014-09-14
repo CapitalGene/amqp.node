@@ -17,4 +17,7 @@ function connect(url, connOptions) {
   });
 }
 
-module.exports.connect = connect;
+module.exports = {
+  connect: connect,
+  Channel: ChannelModel
+};
