@@ -22,7 +22,7 @@ function on_connect(err, conn) {
     ch.assertQueue(q, {
       durable: true
     }, function (err, _ok) {
-      ch.consume(q, doWork, {
+      ch.consume(q, doWork, {noAck: false});
         noAck: false
       });
       console.log(" [*] Waiting for messages. To exit press CTRL+C");
