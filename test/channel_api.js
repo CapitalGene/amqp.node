@@ -691,11 +691,11 @@ describe('confirms', function () {
       });
   });
 
-confirmtest('wait for confirms', function(ch) {
-  for (var i=0; i < 1000; i++) {
-    ch.publish('', '', new Buffer('foobar'), {});
-  }
-  return ch.waitForConfirms();
-})
+  confirmtest('wait for confirms', function (ch) {
+    for (var i = 0; i < 1000; i++) {
+      ch.publish('', '', new Buffer('foobar'), {});
+    }
+    return ch.waitForConfirms();
+  });
 
 });

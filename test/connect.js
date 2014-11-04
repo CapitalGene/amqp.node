@@ -3,9 +3,9 @@
 var connect = require('../lib/connect').connect;
 var assert = require('assert');
 var util = require('./util');
-var fail = util.fail,
-  succeed = util.succeed,
-  kCallback = util.kCallback;
+var fail = util.fail;
+var succeed = util.succeed;
+var kCallback = util.kCallback;
 
 var URL = process.env.URL || 'amqp://localhost';
 
@@ -33,25 +33,32 @@ describe('Connect API', function () {
     connect(u, {}, kCallback(fail(done), succeed(done)));
   });
 
-  test("using plain credentials", function(done) {
+  it('using plain credentials', function (done) {
     var url = require('url');
     var parts = url.parse(URL, true);
-    var u = 'guest', p = 'guest';
+    var u = 'guest',
+      p = 'guest';
     if (parts.auth) {
-      var auth = parts.auth.split(":");
-      u = auth[0], p = auth[1];
+      var auth = parts.auth.split(':');
+      var u = auth[0];
+      var p = auth[1];
     }
-    connect(URL, {credentials: require('../lib/credentials').plain(u, p)},
-            kCallback(succeed(done), fail(done)));
+    connect(URL, {
+        credentials: require('../lib/credentials').plain(u, p)
+      },
+      kCallback(succeed(done), fail(done)));
   });
 
-  test("using unsupported mechanism", function(done) {
+  it('using unsupported mechanism', function (done) {
     var creds = {
       mechanism: 'UNSUPPORTED',
-      response: function() { return new Buffer(''); }
+      response: function () {
+        return new Buffer('');
+      }
     };
-    connect(URL, {credentials: creds},
-            kCallback(fail(done), succeed(done)));
+    connect(URL, {
+        credentials: creds
+      },
+      kCallback(fail(done), succeed(done)));
   });
-
 });

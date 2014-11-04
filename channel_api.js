@@ -19,5 +19,6 @@ function connect(url, connOptions) {
 
 module.exports = {
   connect: connect,
-  Channel: ChannelModel
-module.exports.credentials = require('./lib/credentials');
+  Channel: ChannelModel,
+  credentials: require('./lib/credentials')
+};

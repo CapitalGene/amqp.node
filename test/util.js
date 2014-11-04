@@ -42,7 +42,9 @@ function socketPair() {
   client.write = server.push.bind(server);
 
   function end(chunk, encoding) {
-    if (chunk) this.push(chunk, encoding);
+    if (chunk) {
+      this.push(chunk, encoding);
+    }
     this.push(null);
   }
   server.end = end.bind(client);
@@ -84,17 +86,23 @@ function runServer(socket, run) {
       return new Promise(function (resolve, reject) {
         if (method) {
           frames.step(function (e, f) {
-            if (e !== null) return reject(e);
-            if (f.id === method)
+            if (e !== null) {
+              return reject(e);
+            }
+            if (f.id === method) {
               resolve(f);
-            else
+            } else {
               reject(new Error("Expected method: " + method +
                 ", got " + f.id));
+            }
           });
         } else {
           frames.step(function (e, f) {
-            if (e !== null) return reject(e);
-            else resolve(f);
+            if (e !== null) {
+              return reject(e);
+            } else {
+              resolve(f);
+            }
           });
         }
       });
@@ -108,7 +116,7 @@ function runServer(socket, run) {
 function succeed(done) {
   return function () {
     done();
-  }
+  };
 }
 
 // Produce a callback that will fail the test, given either an error
@@ -179,7 +187,7 @@ function versionGreaterThan(actual, spec) {
   for (var i = 0; i < desired.length; i++) {
     var a = version[i],
       b = desired[i];
-    if (a !== b){
+    if (a !== b) {
       return a > b;
     }
   }

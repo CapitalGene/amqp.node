@@ -263,12 +263,12 @@ describe('ConfirmChannel', function () {
     ch.publish('', '', new Buffer('foo'), {}, done);
   });
 
-confirm_channel_test('Wait for confirms', function(ch, done) {
-  for (var i=0; i < 1000; i++) {
-    ch.publish('', '', new Buffer('foo'), {});
-  }
-  ch.waitForConfirms(done);
-});
+  confirm_channel_test('Wait for confirms', function (ch, done) {
+    for (var i = 0; i < 1000; i++) {
+      ch.publish('', '', new Buffer('foo'), {});
+    }
+    ch.waitForConfirms(done);
+  });
 
 });
 
