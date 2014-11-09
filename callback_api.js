@@ -1,4 +1,7 @@
 'use strict';
+/*!
+ * Module dependencies.
+ */
 var raw_connect = require('./lib/connect').connect;
 var CallbackModel = require('./lib/callback_model').CallbackModel;
 
