@@ -22,7 +22,7 @@ test:
 		--reporter $(REPORTER)
 
 test-all-nodejs: lib/defs.js
-	for v in '0.8' '0.9' '0.10' '0.11'; \
+	for v in '0.8' '0.9' '0.10' '0.11' '0.12' '1.0' '1.1'; \
 		do nave use $$v $(MOCHA) -u tdd -R progress test; \
 		done
 
