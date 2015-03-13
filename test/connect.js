@@ -3,6 +3,7 @@
 var connect = require('../lib/connect').connect;
 var assert = require('assert');
 var util = require('./util');
+var net = require('net');
 var fail = util.fail;
 var succeed = util.succeed;
 var kCallback = util.kCallback;
@@ -60,5 +61,19 @@ describe('Connect API', function () {
         credentials: creds
       },
       kCallback(fail(done), succeed(done)));
+  });
+  it('with a given connection timeout', function (done) {
+    var timeoutServer = net.createServer(function () {}).listen(31991);
+
+    connect('amqp://localhost:31991', {
+      timeout: 50
+    }, function (err, val) {
+      timeoutServer.close();
+      if (val) {
+        done(new Error('Expected connection timeout, did not'));
+      } else {
+        done();
+      }
+    });
   });
 });

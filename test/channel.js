@@ -89,6 +89,7 @@ var DELIVER_FIELDS = {
 
 function open(ch) {
   return new Promise(function (resolve, reject) {
+    ch.allocate();
     ch._rpc(defs.ChannelOpen, {
         outOfBand: ''
       }, defs.ChannelOpenOk,
@@ -338,9 +339,9 @@ describe('channel machinery', function () {
       await(defs.BasicPublish)()
         .then(await(defs.BasicProperties))
         .then(await(undefined)) // content frame
-      .then(function (f) {
-        assert.equal('foobar', f.content.toString());
-      }).then(succeed(done), fail(done));
+        .then(function (f) {
+          assert.equal('foobar', f.content.toString());
+        }).then(succeed(done), fail(done));
     }));
 
   it('publish content > single chunk threshold', channelTest(
@@ -360,9 +361,9 @@ describe('channel machinery', function () {
       await(defs.BasicPublish)()
         .then(await(defs.BasicProperties))
         .then(await(undefined)) // content frame
-      .then(function (f) {
-        assert.equal(3000, f.content.length);
-      }).then(succeed(done), fail(done));
+        .then(function (f) {
+          assert.equal(3000, f.content.length);
+        }).then(succeed(done), fail(done));
     }));
 
   it('publish method & headers > threshold', channelTest(
@@ -386,9 +387,9 @@ describe('channel machinery', function () {
       await(defs.BasicPublish)()
         .then(await(defs.BasicProperties))
         .then(await(undefined)) // content frame
-      .then(function (f) {
-        assert.equal('foobar', f.content.toString());
-      }).then(succeed(done), fail(done));
+        .then(function (f) {
+          assert.equal('foobar', f.content.toString());
+        }).then(succeed(done), fail(done));
     }));
 
   it('publish zero-length message', channelTest(
@@ -414,8 +415,8 @@ describe('channel machinery', function () {
     function (send, await, done, ch) {
       await(defs.BasicPublish)()
         .then(await(defs.BasicProperties))
-      // no content frame for a zero-length message
-      .then(await(defs.BasicPublish))
+        // no content frame for a zero-length message
+        .then(await(defs.BasicPublish))
         .then(succeed(done), fail(done));
     }));
 
