@@ -18,10 +18,11 @@ describe('Connect API', function () {
   });
 
   // %% this ought to fail the promise, rather than throwing an error
-  it('bad URL', function () {
-    assert.throws(function () {
-      connect('blurble');
-    });
+  it('bad URL', function (done) {
+    connect('blurble')
+      .catch(function (err) {
+        done();
+      });
   });
 
   it('wrongly typed open option', function (done) {
