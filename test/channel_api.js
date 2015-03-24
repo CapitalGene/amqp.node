@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var api = require('../channel_api');
+var api = require('../lib');
 var util = require('./util');
 var succeed = util.succeed,
   fail = util.fail;

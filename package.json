@@ -1,7 +1,7 @@
 {
   "name": "amqplib",
   "homepage": "https://github.com/CapitalGene/amqp.node.git",
-  "main": "./channel_api.js",
+  "main": "./lib/index.js",
   "version": "0.3.1",
   "private": true,
   "description": "An AMQP 0-9-1 (e.g., RabbitMQ) library and client.",
