@@ -18,7 +18,6 @@ function randomString() {
   return hash.digest('base64');
 }
 
-
 // Set up a socket pair {client, server}, such that writes to the
 // client are readable from the server, and writes to the server are
 // readable at the client.
