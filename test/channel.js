@@ -137,7 +137,7 @@ describe('channel open and close', function () {
       return await(defs.ChannelClose)()
         .then(function (close) {
           send(defs.ChannelCloseOk, {}, ch);
-        }).then(succeed(done), fail(done));;
+        }).then(succeed(done), fail(done));
     }));
 
   it('server close', channelTest(
@@ -170,7 +170,7 @@ describe('channel open and close', function () {
         .then(function () {
           send(defs.ConnectionClose, {
             replyText: 'Got there first',
-            replyCode: defs.constants.CONNECTION_FORCED,
+            replyCode: defs.constants.INTERNAL_ERROR,
             classId: 0,
             methodId: 0
           }, 0);

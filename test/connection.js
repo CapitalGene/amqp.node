@@ -43,7 +43,7 @@ function happy_open(send, await) {
     locales: new Buffer('en_US')
   });
   return await(defs.ConnectionStartOk)()
-    .then(function (f) {
+    .then(function(f) {
       send(defs.ConnectionTune, {
         channelMax: 0,
         heartbeat: 0,
@@ -52,7 +52,7 @@ function happy_open(send, await) {
     })
     .then(await(defs.ConnectionTuneOk))
     .then(await(defs.ConnectionOpen))
-    .then(function (f) {
+    .then(function(f) {
       send(defs.ConnectionOpenOk, {
         knownHosts: ''
       });
@@ -61,7 +61,7 @@ function happy_open(send, await) {
 module.exports.connection_handshake = happy_open;
 
 function connectionTest(client, server) {
-  return function (done) {
+  return function(done) {
     var bothDone = latch(2, done);
     var pair = util.socketPair();
     var c = new Connection(pair.client);
@@ -75,30 +75,30 @@ function connectionTest(client, server) {
     assert.deepEqual(new Buffer('AMQP' + String.fromCharCode(0, 0, 9, 1)),
       protocolHeader);
 
-    var s = util.runServer(pair.server, function (send, await) {
+    var s = util.runServer(pair.server, function(send, await) {
       server(send, await, bothDone, pair.server);
     });
   };
 }
 
-describe('Connection errors', function () {
+describe('Connection errors', function() {
 
-  it('socket close during open', function (done) {
+  it('socket close during open', function(done) {
     // RabbitMQ itself will take at least 3 seconds to close the socket
     // in the event of a handshake problem. Instead of using a live
     // connection, I'm just going to pretend.
     var pair = util.socketPair();
     var conn = new Connection(pair.client);
-    pair.server.on('readable', function () {
+    pair.server.on('readable', function() {
       pair.server.end();
     });
     conn.open({}, kCallback(fail(done), succeed(done)));
   });
 
-  it('bad frame during open', function (done) {
+  it('bad frame during open', function(done) {
     var ss = util.socketPair();
-    var conn = new(require('../lib/connection').Connection)(ss.client);
-    ss.server.on('readable', function () {
+    var conn = new (require('../lib/connection').Connection)(ss.client);
+    ss.server.on('readable', function() {
       ss.server.write(new Buffer([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
     });
     conn.open({}, kCallback(fail(done), succeed(done)));
@@ -106,23 +106,23 @@ describe('Connection errors', function () {
 
 });
 
-describe('Connection open', function () {
+describe('Connection open', function() {
 
   it('happy', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.open(OPEN_OPTS, kCallback(succeed(done), fail(done)));
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await).then(succeed(done), fail(done));
     }));
 
   it('wrong first frame', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.open(OPEN_OPTS, kCallback(fail(done), succeed(done)));
     },
-    function (send, await, done) {
+    function(send, await, done) {
       // bad server! bad! whatever were you thinking?
-      completes(function () {
+      completes(function() {
         send(defs.ConnectionTune, {
           channelMax: 0,
           heartbeat: 0,
@@ -132,10 +132,10 @@ describe('Connection open', function () {
     }));
 
   it('unexpected socket close', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.open(OPEN_OPTS, kCallback(fail(done), succeed(done)));
     },
-    function (send, await, done, socket) {
+    function(send, await, done, socket) {
       send(defs.ConnectionStart, {
         versionMajor: 0,
         versionMinor: 9,
@@ -144,7 +144,7 @@ describe('Connection open', function () {
         locales: new Buffer('en_US')
       });
       return await(defs.ConnectionStartOk)()
-        .then(function () {
+        .then(function() {
           socket.end();
         })
         .then(succeed(done), fail(done));
@@ -152,16 +152,16 @@ describe('Connection open', function () {
 
 });
 
-describe('Connection running', function () {
+describe('Connection running', function() {
 
   it('wrong frame on channel 0', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.on('error', succeed(done));
       c.open(OPEN_OPTS);
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await)
-        .then(function () {
+        .then(function() {
           // there's actually nothing that would plausibly be sent to a
           // just opened connection, so this is violating more than one
           // rule. Nonetheless.
@@ -170,19 +170,19 @@ describe('Connection running', function () {
           }, 0);
         })
         .then(await(defs.ConnectionClose))
-        .then(function (close) {
+        .then(function(close) {
           send(defs.ConnectionCloseOk, {}, 0);
         }).then(succeed(done), fail(done));
     }));
 
   it('unopened channel', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.on('error', succeed(done));
       c.open(OPEN_OPTS);
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await)
-        .then(function () {
+        .then(function() {
           // there's actually nothing that would plausibly be sent to a
           // just opened connection, so this is violating more than one
           // rule. Nonetheless.
@@ -191,36 +191,36 @@ describe('Connection running', function () {
           }, 3);
         })
         .then(await(defs.ConnectionClose))
-        .then(function (close) {
+        .then(function(close) {
           send(defs.ConnectionCloseOk, {}, 0);
         }).then(succeed(done), fail(done));
     }));
 
   it('unexpected socket close', connectionTest(
-    function (c, done) {
+    function(c, done) {
       var errorAndClosed = latch(2, done);
       c.on('error', succeed(errorAndClosed));
       c.on('close', succeed(errorAndClosed));
-      c.open(OPEN_OPTS, kCallback(function () {
+      c.open(OPEN_OPTS, kCallback(function() {
         c.sendHeartbeat();
       }, fail(errorAndClosed)));
     },
-    function (send, await, done, socket) {
+    function(send, await, done, socket) {
       happy_open(send, await)
         .then(await())
-        .then(function () {
+        .then(function() {
           socket.end();
         }).then(succeed(done));
     }));
 
   it('connection.blocked', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.on('blocked', succeed(done));
       c.open(OPEN_OPTS);
     },
-    function (send, await, done, socket) {
+    function(send, await, done, socket) {
       happy_open(send, await)
-        .then(function () {
+        .then(function() {
           send(defs.ConnectionBlocked, {
             reason: 'felt like it'
           }, 0);
@@ -229,13 +229,13 @@ describe('Connection running', function () {
     }));
 
   it('connection.unblocked', connectionTest(
-    function (c, done) {
+    function(c, done) {
       c.on('unblocked', succeed(done));
       c.open(OPEN_OPTS);
     },
-    function (send, await, done, socket) {
+    function(send, await, done, socket) {
       happy_open(send, await)
-        .then(function () {
+        .then(function() {
           send(defs.ConnectionUnblocked, {}, 0);
         })
         .then(succeed(done));
@@ -244,37 +244,37 @@ describe('Connection running', function () {
 
 });
 
-describe('Connection close', function () {
+describe('Connection close', function() {
 
   it('happy', connectionTest(
-    function (c, done0) {
+    function(c, done0) {
       var done = latch(2, done0);
       c.on('close', done);
-      c.open(OPEN_OPTS, kCallback(function (_ok) {
+      c.open(OPEN_OPTS, kCallback(function(_ok) {
         c.close(kCallback(succeed(done), fail(done)));
-      }, function () {}));
+      }, function() {}));
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await)
         .then(await(defs.ConnectionClose))
-        .then(function (close) {
+        .then(function(close) {
           send(defs.ConnectionCloseOk, {});
         })
         .then(succeed(done), fail(done));
     }));
 
   it('interleaved close frames', connectionTest(
-    function (c, done0) {
+    function(c, done0) {
       var done = latch(2, done0);
       c.on('close', done);
-      c.open(OPEN_OPTS, kCallback(function (_ok) {
+      c.open(OPEN_OPTS, kCallback(function(_ok) {
         c.close(kCallback(succeed(done), fail(done)));
       }, done));
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await)
         .then(await(defs.ConnectionClose))
-        .then(function (f) {
+        .then(function(f) {
           send(defs.ConnectionClose, {
             replyText: 'Ha!',
             replyCode: defs.constants.REPLY_SUCCESS,
@@ -283,22 +283,22 @@ describe('Connection close', function () {
           });
         })
         .then(await(defs.ConnectionCloseOk))
-        .then(function (f) {
+        .then(function(f) {
           send(defs.ConnectionCloseOk, {});
         })
         .then(succeed(done), fail(done));
     }));
 
-  it('server-initiated close', connectionTest(
-    function (c, done0) {
+  it('server error close', connectionTest(
+    function(c, done0) {
       var done = latch(2, done0);
       c.on('close', succeed(done));
       c.on('error', succeed(done));
       c.open(OPEN_OPTS);
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await)
-        .then(function (f) {
+        .then(function(f) {
           send(defs.ConnectionClose, {
             replyText: 'Begone',
             replyCode: defs.constants.INTERNAL_ERROR,
@@ -308,63 +308,85 @@ describe('Connection close', function () {
         })
         .then(await(defs.ConnectionCloseOk))
         .then(succeed(done), fail(done));
-    }));
+    })
+  );
+
+  test('operator-intiated close', connectionTest(
+    function(c, done) {
+      c.on('close', succeed(done));
+      c.on('error', fail(done));
+      c.open(OPEN_OPTS);
+    },
+    function(send, await, done) {
+      happy_open(send, await)
+        .then(function(f) {
+          send(defs.ConnectionClose, {
+            replyText: 'Begone',
+            replyCode: defs.constants.CONNECTION_FORCED,
+            methodId: 0,
+            classId: 0,
+          });
+        })
+        .then(await(defs.ConnectionCloseOk))
+        .then(succeed(done), fail(done));
+    })
+  );
 
   it('double close', connectionTest(
-    function (c, done) {
-      c.open(OPEN_OPTS, kCallback(function () {
+    function(c, done) {
+      c.open(OPEN_OPTS, kCallback(function() {
         c.close();
         // NB no synchronisation, we do this straight away
-        assert.throws(function () {
+        assert.throws(function() {
           c.close();
         });
         done();
       }, done));
     },
-    function (send, await, done) {
+    function(send, await, done) {
       happy_open(send, await)
         .then(await(defs.ConnectionClose))
-        .then(function () {
+        .then(function() {
           send(defs.ConnectionCloseOk, {});
         })
         .then(succeed(done), fail(done));
-    }));
-
+    })
+  );
 });
 
-describe('heartbeats', function () {
+describe('heartbeats', function() {
 
   var heartbeat = require('../lib/heartbeat');
 
-  before(function () {
+  before(function() {
     heartbeat.UNITS_TO_MS = 20;
   });
 
-  after(function () {
+  after(function() {
     heartbeat.UNITS_TO_MS = 1000;
   });
 
   it('send heartbeat after open', connectionTest(
-    function (c, done) {
-      completes(function () {
+    function(c, done) {
+      completes(function() {
         var opts = Object.create(OPEN_OPTS);
         opts.heartbeat = 1;
         // Don't leave the error waiting to happen for the next test, this
         // confuses mocha awfully
-        c.on('error', function () {});
+        c.on('error', function() {});
         c.open(opts);
       }, done);
     },
-    function (send, await, done, socket) {
+    function(send, await, done, socket) {
       var timer;
       happy_open(send, await)
-        .then(function () {
-          timer = setInterval(function () {
+        .then(function() {
+          timer = setInterval(function() {
             socket.write(HB_BUF);
           }, heartbeat.UNITS_TO_MS);
         })
         .then(await())
-        .then(function (hb) {
+        .then(function(hb) {
           if (hb === HEARTBEAT) {
             done();
           } else {
@@ -375,16 +397,16 @@ describe('heartbeats', function () {
     }));
 
   it('detect lack of heartbeats', connectionTest(
-    function (c, done) {
+    function(c, done) {
       var opts = Object.create(OPEN_OPTS);
       opts.heartbeat = 1;
       c.on('error', succeed(done));
       c.open(opts);
     },
-    function (send, await, done, socket) {
+    function(send, await, done, socket) {
       happy_open(send, await)
         .then(succeed(done), fail(done));
-      // conspicuously not sending anything ...
+    // conspicuously not sending anything ...
     }));
 
 });
