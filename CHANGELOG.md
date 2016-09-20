@@ -1,5 +1,8 @@
 # Change log for amqplib
 
+## v0.3.3 (2016-09-19)
+* **deps**: amqp-node-defs@0.0.2
+
 ## v0.3.2 (2016-09-19)
 * renamed to amqp-node
 * [94fb96db] bluebird@3
