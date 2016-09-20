@@ -1,5 +1,11 @@
 # Change log for amqplib
 
+## v0.3.2 (2016-09-19)
+* renamed to amqp-node
+* [94fb96db] bluebird@3
+* [1318ff43] fixed bluebird errors
+* [de440471] **lib/channel**: fixed throw non-Error
+
 ## Changes in v0.3.1 (since v0.3.0)
 
    git log v0.3.0..v0.3.1
