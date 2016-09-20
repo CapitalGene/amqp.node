@@ -2,14 +2,14 @@
   "name": "amqp-node",
   "homepage": "https://github.com/CapitalGene/amqp.node.git",
   "main": "./lib/index.js",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "An AMQP 0-9-1 (e.g., RabbitMQ) library and client.",
   "repository": {
     "type": "git",
     "url": "https://github.com/CapitalGene/amqp.node.git"
   },
   "dependencies": {
-    "amqp-node-defs": "^0.0.1",
+    "amqp-node-defs": "^0.0.2",
     "bitsyntax": "~0.0.4",
     "bluebird": "^3.4.6",
     "buffer-more-ints": "0.0.2",
